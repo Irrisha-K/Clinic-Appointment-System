@@ -15,6 +15,7 @@ import {
 import { authenticate } from "../middlewares/auth.middleware.js";
 import { authorizeRoles } from "../middlewares/role.middleware.js";
 import { optionalAuthenticate } from "../middlewares/optionalAuthenticate.js";
+import scheduleRoutes from "./schedule.routes.js";
 
 const router = Router();
 
@@ -45,5 +46,8 @@ router.patch(
   updateDoctorStatus,
 );
 router.delete("/:id", authenticate, authorizeRoles("admin"), deleteDoctor);
+
+// Nested: schedules, leaves, availability — /api/doctors/:doctorId/...
+router.use("/:doctorId", scheduleRoutes);
 
 export default router;
