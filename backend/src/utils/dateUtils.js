@@ -31,3 +31,15 @@ export const toUTCMidnight = (dateString) =>
 export const getDayOfWeekFromDateString = (dateString) => {
   return DAY_ORDER[toUTCMidnight(dateString).getUTCDay()];
 };
+
+export const getNepalTodayDateString = () => {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kathmandu",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return formatter.format(new Date()); // en-CA locale formats as YYYY-MM-DD
+};
+
+export const toDateString = (date) => date.toISOString().slice(0, 10);
