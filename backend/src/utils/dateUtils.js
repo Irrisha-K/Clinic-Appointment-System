@@ -1,5 +1,25 @@
 const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+export const formatFriendlyDate = (dateString, dayOfWeek) => {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return `${dayOfWeek}, ${MONTH_NAMES[month - 1]} ${day}, ${year}`;
+};
+
 export const DAY_ORDER = [
   "Sunday",
   "Monday",

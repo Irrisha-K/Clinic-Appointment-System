@@ -11,14 +11,14 @@ import {
   toDateString,
   getNepalTodayDateString,
 } from "../utils/dateUtils.js";
+import {
+  notifyAppointmentConfirmed,
+  notifyAppointmentCancelled,
+} from "./email.service.js";
 
 const RESCHEDULABLE_STATUSES = ["pending", "confirmed"];
 const CANCELLABLE_STATUSES = ["pending", "confirmed"];
 
-// Appends a statusHistory entry. Mutates the in-memory document only —
-// callers are responsible for calling .save() afterward. Exported so the
-// controller's createAppointment can reuse it too (avoids duplicating this
-// small piece of logic in two places).
 export const appendHistory = (
   appointment,
   {
@@ -53,8 +53,6 @@ export const confirmAppointmentService = async (appointment, staffUserId) => {
     throw createError("Doctor not found", 404);
   }
 
-  // Single reused service call covers doctor-active + scheduled-that-day +
-  // not-on-leave all at once — no duplicate status checks here.
   const availability = await getDoctorAvailability(
     doctor,
     toDateString(appointment.appointmentDate),
@@ -66,8 +64,6 @@ export const confirmAppointmentService = async (appointment, staffUserId) => {
     );
   }
 
-  // Token acquired BEFORE any mutation — if this throws, the appointment
-  // document is untouched and remains exactly "pending".
   const tokenNumber = await assignNextToken(
     doctor._id,
     appointment.appointmentDate,
@@ -78,6 +74,15 @@ export const confirmAppointmentService = async (appointment, staffUserId) => {
   appendHistory(appointment, { action: "confirmed", changedBy: staffUserId });
 
   await appointment.save();
+
+  // Email is sent AFTER the appointment is already confirmed and saved.
+  // notifyAppointmentConfirmed never throws, so a failure here cannot
+  // undo or affect the confirmation that already succeeded.
+  await notifyAppointmentConfirmed(appointment, doctor, {
+    startTime: availability.startTime,
+    endTime: availability.endTime,
+  });
+
   return appointment;
 };
 
@@ -100,13 +105,22 @@ export const cancelAppointmentService = async (
     changedBy,
     note: cancelReason || null,
   });
-  // tokenNumber intentionally untouched — never cleared, never reused.
 
   await appointment.save();
+
+  const doctor = await Doctor.findById(appointment.doctor).select(
+    "firstName lastName",
+  );
+  if (doctor) {
+    await notifyAppointmentCancelled(appointment, doctor);
+  }
+
   return appointment;
 };
 
 // ---------- Reschedule ----------
+// No email sent here, per approved design — only the eventual re-confirmation
+// (via confirmAppointmentService above) sends an email, for the new date.
 export const rescheduleAppointmentService = async (
   appointment,
   { newAppointmentDate, newDoctorId },
@@ -319,8 +333,7 @@ export const createWalkInService = async (payload, staffUserId) => {
     symptoms: symptoms.trim(),
     paymentMethod,
     paymentStatus: paymentMethod === "mock_esewa" ? "paid" : "pending",
-    status: "pending", // set to pending first, then confirmed below via the
-    // same code path as a normal confirmation-in-memory
+    status: "pending",
   });
 
   appendHistory(appointment, {
@@ -329,8 +342,6 @@ export const createWalkInService = async (payload, staffUserId) => {
     note: "Walk-in appointment created by staff",
   });
 
-  // Token acquired before finalizing "confirmed", same safety ordering as
-  // confirmAppointmentService — if this throws, nothing has been saved yet.
   const tokenNumber = await assignNextToken(doctor._id, normalizedDate);
 
   appointment.tokenNumber = tokenNumber;
@@ -342,5 +353,13 @@ export const createWalkInService = async (payload, staffUserId) => {
   });
 
   await appointment.save();
+
+  // Only sends if the walk-in actually has an email — resolveRecipient
+  // inside notifyAppointmentConfirmed returns null and skips otherwise.
+  await notifyAppointmentConfirmed(appointment, doctor, {
+    startTime: availability.startTime,
+    endTime: availability.endTime,
+  });
+
   return appointment;
 };
