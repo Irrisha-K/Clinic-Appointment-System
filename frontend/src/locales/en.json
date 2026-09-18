@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "Home",
+    "doctors": "Doctors",
+    "departments": "Departments",
+    "bookAppointment": "Book Appointment",
+    "login": "Log In",
+    "register": "Register",
+    "logout": "Log Out",
+    "dashboard": "Dashboard"
+  },
+  "common": {
+    "clinicName": "City Multi-Specialty Clinic",
+    "loading": "Loading...",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "emergencyNotice": "For medical emergencies, please call the clinic directly or visit the nearest emergency department."
+  }
+}

@@ -1,11 +1,17 @@
 import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import AppRoutes from "./routes/AppRoutes";
-import "./styles/index.css";
+import "./index.css";
 
 function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <AuthProvider>
+        <LanguageProvider>
+          <AppRoutes />
+        </LanguageProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

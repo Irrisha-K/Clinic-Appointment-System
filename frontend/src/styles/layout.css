@@ -1,0 +1,102 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-white);
+}
+
+.app-shell__main {
+  flex: 1;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-white);
+}
+
+.navbar__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.navbar__brand {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.navbar__brand:hover {
+  text-decoration: none;
+}
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar__link {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.navbar__link:hover {
+  color: var(--color-primary-dark);
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar__dashboard-link {
+  font-weight: 500;
+  color: var(--color-primary-dark);
+}
+
+@media (max-width: 860px) {
+  .navbar__links {
+    order: 3;
+    width: 100%;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-primary-light);
+}
+
+.footer__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  color: var(--color-text-muted);
+}
+
+.footer__clinic-name {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  margin-bottom: 0.5rem;
+}
+
+.footer__notice {
+  max-width: 65ch;
+  margin-bottom: 1rem;
+}
+
+.footer__copyright {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin: 0;
+}
