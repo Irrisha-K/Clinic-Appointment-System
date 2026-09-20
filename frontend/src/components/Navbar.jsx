@@ -37,14 +37,24 @@ const Navbar = () => {
           <Link to="/departments" className="navbar__link">
             {t("nav.departments")}
           </Link>
-          <Link to="/book-appointment" className="navbar__link">
-            {t("nav.bookAppointment")}
-          </Link>
+          {!user && (
+            <>
+              <Link to="/login" className="navbar__link">
+                {t("nav.login")}
+              </Link>
+              <Link to="/register" className="navbar__link">
+                {t("nav.register")}
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="navbar__actions">
           <LanguageToggle />
-          {user ? (
+          <Link to="/book-appointment">
+            <Button variant="primary">{t("nav.bookAppointment")}</Button>
+          </Link>
+          {user && (
             <>
               <Link
                 to={DASHBOARD_PATH[user.role] || "/"}
@@ -55,15 +65,6 @@ const Navbar = () => {
               <Button variant="outline" onClick={handleLogout}>
                 {t("nav.logout")}
               </Button>
-            </>
-          ) : (
-            <>
-              <Link to="/login">
-                <Button variant="outline">{t("nav.login")}</Button>
-              </Link>
-              <Link to="/register">
-                <Button variant="primary">{t("nav.register")}</Button>
-              </Link>
             </>
           )}
         </div>
