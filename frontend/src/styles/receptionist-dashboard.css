@@ -1,0 +1,99 @@
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 0.65rem 1.1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab-button:hover {
+  color: var(--color-primary-dark);
+}
+
+.tab-button--active {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  border-bottom-color: var(--color-primary);
+}
+
+.search-bar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.search-bar__field {
+  flex: 1 1 320px;
+  max-width: 420px;
+}
+
+.search-bar__field .field {
+  margin-bottom: 0;
+}
+
+.search-bar__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.filter-note {
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+  margin: -0.75rem 0 1.25rem;
+}
+
+.patient-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.guest-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #eceff1;
+  color: var(--color-text-light);
+}
+
+.walkin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1.25rem;
+}
+
+@media (max-width: 560px) {
+  .walkin-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.walkin-form-grid .field--full {
+  grid-column: 1 / -1;
+}

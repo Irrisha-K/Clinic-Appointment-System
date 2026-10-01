@@ -22,14 +22,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  gap: 1rem;
+  flex-wrap: nowrap;
 }
 
 .navbar__brand {
   font-size: 1.15rem;
   font-weight: 600;
   color: var(--color-primary-dark);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .navbar__brand:hover {
@@ -39,12 +41,13 @@
 .navbar__links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .navbar__link {
   color: var(--color-text-muted);
   font-size: 1rem;
+  white-space: nowrap;
 }
 
 .navbar__link:hover {
@@ -55,6 +58,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .navbar__dashboard-link {
@@ -63,6 +67,9 @@
 }
 
 @media (max-width: 860px) {
+  .navbar__inner {
+    flex-wrap: wrap;
+  }
   .navbar__links {
     order: 3;
     width: 100%;

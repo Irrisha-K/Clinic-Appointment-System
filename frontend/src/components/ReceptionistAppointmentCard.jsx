@@ -9,12 +9,19 @@ const STATUS_LABEL_KEYS = {
   no_show: "statusNoShow",
 };
 
-const ACTIONABLE_STATUSES = ["pending", "confirmed"];
-
-const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
+const ReceptionistAppointmentCard = ({
+  appointment,
+  onConfirm,
+  onCancel,
+  onReschedule,
+  onComplete,
+  onNoShow,
+}) => {
   const { t } = useLanguage();
   const {
     _id,
+    patientRef,
+    guestInfo,
     doctor,
     department,
     appointmentDate,
@@ -26,24 +33,44 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
     symptoms,
   } = appointment;
 
-  const canAct = ACTIONABLE_STATUSES.includes(status);
+  const patientName = patientRef
+    ? `${patientRef.firstName} ${patientRef.lastName}`
+    : guestInfo
+      ? `${guestInfo.firstName} ${guestInfo.lastName}`
+      : "-";
+
+  const patientContact = patientRef?.phone || guestInfo?.phone || "-";
 
   return (
     <article className={`appointment-card appointment-card--${status}`}>
       <div className="appointment-card__header">
-        <h3 className="appointment-card__doctor">
-          {doctor ? `Dr. ${doctor.firstName} ${doctor.lastName}` : "-"}
-        </h3>
+        <div>
+          <div className="patient-identity">
+            <h3 className="appointment-card__doctor">{patientName}</h3>
+            {!patientRef && (
+              <span className="guest-badge">
+                {t("receptionist.guestBadge")}
+              </span>
+            )}
+          </div>
+          {doctor && (
+            <p className="appointment-card__department">
+              Dr. {doctor.firstName} {doctor.lastName}
+              {department?.name ? ` · ${department.name}` : ""}
+            </p>
+          )}
+        </div>
         <span className={`status-badge status-badge--${status}`}>
           {t(`dashboard.${STATUS_LABEL_KEYS[status]}`)}
         </span>
       </div>
 
-      {department?.name && (
-        <p className="appointment-card__department">{department.name}</p>
-      )}
-
       <div className="appointment-card__details">
+        <div className="detail-row">
+          <p className="detail-label">{t("receptionist.contactLabel")}</p>
+          <p className="detail-value">{patientContact}</p>
+        </div>
+
         <div className="detail-row">
           <p className="detail-label">{t("dashboard.dateLabel")}</p>
           <p className="detail-value">
@@ -52,8 +79,6 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
           </p>
         </div>
 
-        {/* Token rule: only shown when confirmed AND the backend actually
-            provided a number — never displayed for pending appointments. */}
         {status === "confirmed" && tokenNumber != null && (
           <div className="detail-row">
             <p className="detail-label">{t("dashboard.tokenLabel")}</p>
@@ -94,22 +119,35 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
         </div>
       </div>
 
-      {canAct && (onCancel || onReschedule) && (
-        <div className="appointment-card__actions">
-          {onReschedule && (
-            <Button variant="outline" onClick={() => onReschedule(appointment)}>
-              {t("dashboard.reschedule")}
-            </Button>
-          )}
-          {onCancel && (
-            <Button variant="danger" onClick={() => onCancel(appointment)}>
-              {t("dashboard.cancel")}
-            </Button>
-          )}
-        </div>
-      )}
+      <div className="appointment-card__actions">
+        {status === "pending" && onConfirm && (
+          <Button variant="primary" onClick={() => onConfirm(appointment)}>
+            {t("receptionist.confirm")}
+          </Button>
+        )}
+        {status === "confirmed" && onComplete && (
+          <Button variant="primary" onClick={() => onComplete(appointment)}>
+            {t("receptionist.complete")}
+          </Button>
+        )}
+        {status === "confirmed" && onNoShow && (
+          <Button variant="outline" onClick={() => onNoShow(appointment)}>
+            {t("receptionist.noShow")}
+          </Button>
+        )}
+        {(status === "pending" || status === "confirmed") && onReschedule && (
+          <Button variant="outline" onClick={() => onReschedule(appointment)}>
+            {t("dashboard.reschedule")}
+          </Button>
+        )}
+        {(status === "pending" || status === "confirmed") && onCancel && (
+          <Button variant="danger" onClick={() => onCancel(appointment)}>
+            {t("dashboard.cancel")}
+          </Button>
+        )}
+      </div>
     </article>
   );
 };
 
-export default AppointmentCard;
+export default ReceptionistAppointmentCard;

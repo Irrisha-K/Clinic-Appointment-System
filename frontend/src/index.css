@@ -4,6 +4,10 @@
 @import "./styles/home.css";
 @import "./styles/doctors.css";
 @import "./styles/booking.css";
+@import "./styles/patient-dashboard.css";
+@import "./styles/auth.css";
+@import "./styles/receptionist-dashboard.css";
+@import "./styles/admin-dashboard.css";
 
 :root {
   --color-primary: #175a94;

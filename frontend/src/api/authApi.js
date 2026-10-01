@@ -1,24 +1,7 @@
-import axios from "axios";
+import api from "../services/api";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api",
-  headers: { "Content-Type": "application/json" },
-});
+export const registerPatient = (data) => api.post("/auth/register", data);
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+export const login = (data) => api.post("/auth/login", data);
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-    }
-    return Promise.reject(error);
-  },
-);
-
-export default api;
+export const getMe = () => api.get("/auth/me");
