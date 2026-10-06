@@ -18,7 +18,11 @@ import {
   updateDoctorSchedule,
   updateDoctorScheduleStatus,
   deleteDoctorSchedule,
+  getDoctorLeaves,
+  addDoctorLeave,
+  deleteDoctorLeave,
 } from "../api/doctorApi";
+
 import { getAppointments, getTodayAppointments } from "../api/appointmentApi";
 import ReceptionistAppointmentCard from "../components/ReceptionistAppointmentCard";
 import Modal from "../components/common/Modal";
@@ -58,6 +62,7 @@ const EMPTY_SCHEDULE_FORM = {
   breakStart: "",
   breakEnd: "",
 };
+const getTodayDateString = () => new Date().toISOString().slice(0, 10);
 
 const AdminDashboard = () => {
   const { t } = useLanguage();
@@ -375,6 +380,74 @@ const AdminDashboard = () => {
   const [scheduleFormError, setScheduleFormError] = useState(null);
   const [scheduleDeleteTarget, setScheduleDeleteTarget] = useState(null);
   const [scheduleDeleting, setScheduleDeleting] = useState(false);
+  // ================= DOCTOR LEAVE =================
+  const [leaves, setLeaves] = useState([]);
+  const [leavesLoading, setLeavesLoading] = useState(false);
+  const [leavesError, setLeavesError] = useState(null);
+  const [leaveDate, setLeaveDate] = useState("");
+  const [leaveReason, setLeaveReason] = useState("");
+  const [leaveFormError, setLeaveFormError] = useState(null);
+  const [leaveSaving, setLeaveSaving] = useState(false);
+  const [leaveDeleteTarget, setLeaveDeleteTarget] = useState(null);
+  const [leaveDeleting, setLeaveDeleting] = useState(false);
+
+  const loadLeaves = useCallback((doctorId) => {
+    if (!doctorId) {
+      setLeaves([]);
+      return;
+    }
+    setLeavesLoading(true);
+    setLeavesError(null);
+    getDoctorLeaves(doctorId)
+      .then((res) => setLeaves(res.data.leaves || []))
+      .catch((err) =>
+        setLeavesError(err.response?.data?.message || t("admin.loadError")),
+      )
+      .finally(() => setLeavesLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    loadLeaves(scheduleDoctorId);
+  }, [scheduleDoctorId, loadLeaves]);
+
+  const handleAddLeave = async (e) => {
+    e.preventDefault();
+    setLeaveFormError(null);
+    if (!leaveDate) {
+      setLeaveFormError(t("booking.errorRequired"));
+      return;
+    }
+    setLeaveSaving(true);
+    try {
+      await addDoctorLeave(scheduleDoctorId, {
+        date: leaveDate,
+        reason: leaveReason.trim() || undefined,
+      });
+      setActionMessage(t("admin.leaveAdded"));
+      setLeaveDate("");
+      setLeaveReason("");
+      loadLeaves(scheduleDoctorId);
+    } catch (err) {
+      setLeaveFormError(err.response?.data?.message || t("admin.actionError"));
+    } finally {
+      setLeaveSaving(false);
+    }
+  };
+
+  const confirmLeaveDelete = async () => {
+    setLeaveDeleting(true);
+    try {
+      await deleteDoctorLeave(scheduleDoctorId, leaveDeleteTarget._id);
+      setLeaveDeleteTarget(null);
+      setActionMessage(t("admin.leaveDeleted"));
+      loadLeaves(scheduleDoctorId);
+    } catch (err) {
+      setActionError(err.response?.data?.message || t("admin.actionError"));
+    } finally {
+      setLeaveDeleting(false);
+    }
+  };
 
   const openCreateSchedule = () => {
     setScheduleFormMode("create");
@@ -805,10 +878,131 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               )}
+              {!scheduleLoading && !scheduleError && schedule.length > 0 && (
+                <div className="schedule-list">
+                  {schedule.map((entry) => (
+                    <div
+                      key={entry._id}
+                      className={`schedule-row ${!entry.isActive ? "schedule-row--inactive" : ""}`}
+                    >
+                      <div className="schedule-row__info">
+                        <span className="schedule-row__day">
+                          {t(`days.${entry.dayOfWeek}`)}
+                        </span>
+                        <span className="schedule-row__time">
+                          {entry.startTime} – {entry.endTime}
+                        </span>
+                      </div>
+                      <div className="schedule-row__actions">
+                        <Button
+                          variant="outline"
+                          onClick={() => openEditSchedule(entry)}
+                        >
+                          {t("admin.edit")}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleScheduleStatusToggle(entry)}
+                        >
+                          {entry.isActive
+                            ? t("admin.deactivate")
+                            : t("admin.activate")}
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => setScheduleDeleteTarget(entry)}
+                        >
+                          {t("admin.delete")}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ---------- NEW: Doctor Leave section ---------- */}
+              <div className="leave-section">
+                <h3 className="dashboard-section__title">
+                  {t("admin.leaveSectionTitle")}
+                </h3>
+
+                <form
+                  className="leave-form"
+                  onSubmit={handleAddLeave}
+                  noValidate
+                >
+                  <div className="form-grid-2col">
+                    <Input
+                      id="leaveDate"
+                      type="date"
+                      label={t("admin.leaveDateLabel")}
+                      min={getTodayDateString()}
+                      value={leaveDate}
+                      onChange={(e) => setLeaveDate(e.target.value)}
+                    />
+                    <Input
+                      id="leaveReason"
+                      label={t("admin.leaveReasonLabel")}
+                      value={leaveReason}
+                      onChange={(e) => setLeaveReason(e.target.value)}
+                    />
+                  </div>
+                  {leaveFormError && (
+                    <Alert variant="error">{leaveFormError}</Alert>
+                  )}
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={leaveSaving}
+                  >
+                    {leaveSaving ? t("admin.saving") : t("admin.addLeave")}
+                  </Button>
+                </form>
+
+                <h4 className="leave-list-heading">
+                  {t("admin.existingLeaveHeading")}
+                </h4>
+                {leavesLoading && <Loader label={t("common.loading")} />}
+                {leavesError && <Alert variant="error">{leavesError}</Alert>}
+                {!leavesLoading && !leavesError && leaves.length === 0 && (
+                  <Alert variant="info">{t("admin.noLeaves")}</Alert>
+                )}
+                {!leavesLoading && !leavesError && leaves.length > 0 && (
+                  <div className="schedule-list">
+                    {leaves.map((leave) => (
+                      <div key={leave._id} className="schedule-row">
+                        <div className="schedule-row__info">
+                          <span className="schedule-row__day">
+                            {leave.date?.slice(0, 10)}
+                          </span>
+                          {leave.reason && (
+                            <span className="schedule-row__time">
+                              {leave.reason}
+                            </span>
+                          )}
+                        </div>
+                        <div className="schedule-row__actions">
+                          <Button
+                            variant="danger"
+                            onClick={() => setLeaveDeleteTarget(leave)}
+                          >
+                            {t("admin.delete")}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </>
           )}
         </>
       )}
+      {/* </>
+          )}
+          
+        </>
+      )} */}
 
       {/* ================= APPOINTMENTS TAB (read-only) ================= */}
       {activeTab === "appointments" && (
@@ -1174,6 +1368,29 @@ const AdminDashboard = () => {
             disabled={scheduleDeleting}
           >
             {scheduleDeleting ? t("admin.deleting") : t("admin.delete")}
+          </Button>
+        </div>
+      </Modal>
+      <Modal
+        isOpen={Boolean(leaveDeleteTarget)}
+        onClose={() => setLeaveDeleteTarget(null)}
+        title={t("admin.deleteLeaveTitle")}
+      >
+        <p>{t("admin.deleteLeaveMessage")}</p>
+        <div className="modal-actions">
+          <Button
+            variant="outline"
+            onClick={() => setLeaveDeleteTarget(null)}
+            disabled={leaveDeleting}
+          >
+            {t("common.cancel")}
+          </Button>
+          <Button
+            variant="danger"
+            onClick={confirmLeaveDelete}
+            disabled={leaveDeleting}
+          >
+            {leaveDeleting ? t("admin.deleting") : t("admin.delete")}
           </Button>
         </div>
       </Modal>

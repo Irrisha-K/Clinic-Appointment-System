@@ -31,3 +31,13 @@ export const deleteDoctorSchedule = (doctorId, scheduleId) =>
 
 export const getDoctorAvailability = (id, date) =>
   api.get(`/doctors/${id}/availability`, { params: { date } });
+
+// ---------- Doctor Leave (specific-date unavailability) ----------
+export const getDoctorLeaves = (doctorId) =>
+  api.get(`/doctors/${doctorId}/leaves`);
+
+export const addDoctorLeave = (doctorId, payload) =>
+  api.post(`/doctors/${doctorId}/leaves`, payload);
+
+export const deleteDoctorLeave = (doctorId, leaveId) =>
+  api.delete(`/doctors/${doctorId}/leaves/${leaveId}`);

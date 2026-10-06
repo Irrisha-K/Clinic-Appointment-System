@@ -103,3 +103,68 @@
   gap: 1rem;
   margin-top: 1.5rem;
 }
+/* ---------- eSewa demo payment screen ---------- */
+.esewa-demo-banner {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.esewa-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.esewa-logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #60bb46; /* eSewa-style brand green — used only on this demo screen */
+}
+
+.esewa-tagline {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+}
+
+.esewa-amount-box {
+  background-color: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.esewa-amount-label {
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.esewa-amount-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin: 0;
+}
+
+.esewa-amount-note {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+}
+
+.esewa-success {
+  text-align: center;
+}
+
+.esewa-success-icon {
+  font-size: 2.5rem;
+  color: var(--color-secondary);
+  margin-bottom: 0.5rem;
+}

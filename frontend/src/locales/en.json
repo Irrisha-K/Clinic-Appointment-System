@@ -136,7 +136,22 @@
     "paymentLabelSuccess": "Payment Method",
     "emailNotice": "If you provided an email address, you will receive a confirmation email with your token number once our reception team confirms your appointment.",
     "bookAnother": "Book Another Appointment",
-    "backHome": "Back to Home"
+    "backHome": "Back to Home",
+    "proceedToPayment": "Proceed to Payment",
+    "esewaTitle": "eSewa Payment",
+    "esewaSuccessTitle": "Payment Successful",
+    "esewaDemoNotice": "This is a demo payment screen for testing purposes. No real transaction will occur.",
+    "esewaTagline": "Simulated Payment Gateway",
+    "esewaAmountLabel": "Amount to Pay",
+    "esewaIdLabel": "eSewa ID / Mobile Number",
+    "esewaIdPlaceholder": "98XXXXXXXX",
+    "esewaPinLabel": "MPIN / Password",
+    "esewaPayButton": "Proceed to Pay",
+    "esewaProcessing": "Processing your payment...",
+    "esewaSuccessMessage": "Your demo payment was successful.",
+    "esewaContinueButton": "Continue",
+    "esewaErrorId": "Enter a valid 10-digit demo ID/number.",
+    "esewaErrorPin": "Enter at least 4 characters."
   },
   "dashboard": {
     "welcome": "Welcome, {name}",
@@ -328,6 +343,16 @@
     "save": "Save",
     "saving": "Saving...",
     "deleting": "Deleting...",
-    "errorInvalidNumber": "Please enter a valid non-negative number."
+    "errorInvalidNumber": "Please enter a valid non-negative number.",
+    "leaveSectionTitle": "Doctor Leave",
+    "leaveDateLabel": "Date",
+    "leaveReasonLabel": "Reason (optional)",
+    "addLeave": "Add Leave",
+    "existingLeaveHeading": "Existing Leave",
+    "noLeaves": "No leave dates recorded for this doctor.",
+    "leaveAdded": "Leave date added successfully.",
+    "leaveDeleted": "Leave date removed successfully.",
+    "deleteLeaveTitle": "Remove Leave Date",
+    "deleteLeaveMessage": "Are you sure you want to remove this leave date?"
   }
 }

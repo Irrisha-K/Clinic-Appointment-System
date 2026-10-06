@@ -136,7 +136,22 @@
     "paymentLabelSuccess": "भुक्तानी विधि",
     "emailNotice": "यदि तपाईंले इमेल ठेगाना दिनुभएको छ भने, रिसेप्सनले अपोइन्टमेन्ट पुष्टि गरेपछि टोकन नम्बरसहित पुष्टि इमेल प्राप्त हुनेछ।",
     "bookAnother": "अर्को अपोइन्टमेन्ट बुक गर्नुहोस्",
-    "backHome": "गृहपृष्ठमा फर्कनुहोस्"
+    "backHome": "गृहपृष्ठमा फर्कनुहोस्",
+    "proceedToPayment": "भुक्तानीमा अगाडि बढ्नुहोस्",
+    "esewaTitle": "eSewa भुक्तानी",
+    "esewaSuccessTitle": "भुक्तानी सफल भयो",
+    "esewaDemoNotice": "यो परीक्षणको लागि डेमो भुक्तानी स्क्रिन हो। कुनै वास्तविक कारोबार हुँदैन।",
+    "esewaTagline": "सिमुलेटेड भुक्तानी गेटवे",
+    "esewaAmountLabel": "तिर्नुपर्ने रकम",
+    "esewaIdLabel": "eSewa आईडी / मोबाइल नम्बर",
+    "esewaIdPlaceholder": "98XXXXXXXX",
+    "esewaPinLabel": "MPIN / पासवर्ड",
+    "esewaPayButton": "भुक्तानी अगाडि बढाउनुहोस्",
+    "esewaProcessing": "तपाईंको भुक्तानी प्रक्रिया गर्दै...",
+    "esewaSuccessMessage": "तपाईंको डेमो भुक्तानी सफल भयो।",
+    "esewaContinueButton": "अगाडि बढ्नुहोस्",
+    "esewaErrorId": "मान्य १०-अंकको डेमो आईडी/नम्बर राख्नुहोस्।",
+    "esewaErrorPin": "कम्तिमा ४ अक्षर राख्नुहोस्।"
   },
   "dashboard": {
     "welcome": "स्वागत छ, {name}",
@@ -328,6 +343,16 @@
     "save": "सेभ गर्नुहोस्",
     "saving": "सेभ हुँदैछ...",
     "deleting": "मेटाउँदै...",
-    "errorInvalidNumber": "कृपया मान्य गैर-ऋणात्मक संख्या राख्नुहोस्।"
+    "errorInvalidNumber": "कृपया मान्य गैर-ऋणात्मक संख्या राख्नुहोस्।",
+    "leaveSectionTitle": "डाक्टर बिदा",
+    "leaveDateLabel": "मिति",
+    "leaveReasonLabel": "कारण (वैकल्पिक)",
+    "addLeave": "बिदा थप्नुहोस्",
+    "existingLeaveHeading": "हालका बिदाहरू",
+    "noLeaves": "यस डाक्टरको कुनै बिदा मिति रेकर्ड गरिएको छैन।",
+    "leaveAdded": "बिदा मिति सफलतापूर्वक थपियो।",
+    "leaveDeleted": "बिदा मिति सफलतापूर्वक हटाइयो।",
+    "deleteLeaveTitle": "बिदा मिति हटाउनुहोस्",
+    "deleteLeaveMessage": "के तपाईं यो बिदा मिति हटाउन चाहनुहुन्छ?"
   }
 }

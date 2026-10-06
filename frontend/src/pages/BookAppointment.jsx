@@ -15,6 +15,7 @@ import Select from "../components/common/Select";
 import Button from "../components/common/Button";
 import Alert from "../components/common/Alert";
 import Loader from "../components/common/Loader";
+import Modal from "../components/common/Modal";
 
 const GENDER_OPTIONS_KEYS = [
   { value: "male", key: "genderMale" },
@@ -65,12 +66,19 @@ const BookAppointment = () => {
   const [submitError, setSubmitError] = useState(null);
   const [submittedAppointment, setSubmittedAppointment] = useState(null);
 
+  // ---------- eSewa simulated payment modal state ----------
+  const [showEsewaModal, setShowEsewaModal] = useState(false);
+  const [esewaStep, setEsewaStep] = useState("form"); // form | processing | success
+  const [esewaId, setEsewaId] = useState("");
+  const [esewaPin, setEsewaPin] = useState("");
+  const [esewaErrors, setEsewaErrors] = useState({});
+  const [pendingPayload, setPendingPayload] = useState(null);
+
   const selectedDepartmentObj = departments.find(
     (d) => d._id === selectedDepartment,
   );
   const selectedDoctorObj = doctors.find((d) => d._id === selectedDoctorId);
 
-  // ---------- Initial load: departments + optional ?doctor= pre-select ----------
   useEffect(() => {
     getDepartments()
       .then((res) => setDepartments(res.data.departments || []))
@@ -86,15 +94,11 @@ const BookAppointment = () => {
             setSelectedDoctorId(doctor._id);
           }
         })
-        .catch(() => {
-          // If the doctor id in the URL is invalid/not found, the user can
-          // still pick a department and doctor manually below.
-        });
+        .catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ---------- Doctors list for the selected department ----------
   useEffect(() => {
     if (!selectedDepartment) {
       setDoctors([]);
@@ -113,7 +117,6 @@ const BookAppointment = () => {
     };
   }, [selectedDepartment]);
 
-  // ---------- Weekly schedule hint for the selected doctor ----------
   useEffect(() => {
     if (!selectedDoctorId) {
       setDoctorSchedule([]);
@@ -201,12 +204,7 @@ const BookAppointment = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitError(null);
-
-    if (!validate()) return;
-
+  const buildPayload = () => {
     const payload = {
       department: selectedDepartment,
       doctor: selectedDoctorId,
@@ -214,14 +212,15 @@ const BookAppointment = () => {
       symptoms: symptoms.trim(),
       paymentMethod,
     };
-
     if (!user) {
-      payload.guestInfo = {
-        ...guestInfo,
-        age: Number(guestInfo.age),
-      };
+      payload.guestInfo = { ...guestInfo, age: Number(guestInfo.age) };
     }
+    return payload;
+  };
 
+  // Actually creates the appointment via the real backend. Called either
+  // directly (Pay at Clinic) or after the simulated eSewa flow completes.
+  const submitAppointment = async (payload) => {
     setSubmitting(true);
     try {
       const res = await createAppointment(payload);
@@ -239,11 +238,64 @@ const BookAppointment = () => {
         patientName,
         paymentMethod,
       });
+      setShowEsewaModal(false);
     } catch (err) {
       setSubmitError(err.response?.data?.message || t("booking.submitError"));
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitError(null);
+
+    if (!validate()) return;
+
+    const payload = buildPayload();
+
+    // eSewa is never actually charged here — this only opens the simulated
+    // payment screen below. The real POST /appointments call (with
+    // paymentMethod: "mock_esewa", unchanged for the backend) happens only
+    // after the user completes the demo payment and clicks Continue.
+    if (paymentMethod === "mock_esewa") {
+      setPendingPayload(payload);
+      setEsewaStep("form");
+      setEsewaId("");
+      setEsewaPin("");
+      setEsewaErrors({});
+      setShowEsewaModal(true);
+      return;
+    }
+
+    await submitAppointment(payload);
+  };
+
+  const validateEsewaForm = () => {
+    const errors = {};
+    if (!/^\d{10}$/.test(esewaId.trim()))
+      errors.esewaId = t("booking.esewaErrorId");
+    if (esewaPin.trim().length < 4)
+      errors.esewaPin = t("booking.esewaErrorPin");
+    setEsewaErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleEsewaPay = (e) => {
+    e.preventDefault();
+    if (!validateEsewaForm()) return;
+    setEsewaStep("processing");
+    // Purely a UI simulation of a processing delay — no network call here.
+    setTimeout(() => setEsewaStep("success"), 1500);
+  };
+
+  const handleEsewaContinue = async () => {
+    await submitAppointment(pendingPayload);
+  };
+
+  const handleEsewaCancel = () => {
+    setShowEsewaModal(false);
+    setEsewaStep("form");
   };
 
   const resetForNewBooking = () => {
@@ -262,7 +314,6 @@ const BookAppointment = () => {
     return <Loader label={t("common.loading")} />;
   }
 
-  // ---------- Success screen ----------
   if (submittedAppointment) {
     return (
       <div className="page">
@@ -270,10 +321,6 @@ const BookAppointment = () => {
         <p className="page__lead">{t("booking.successIntro")}</p>
 
         <div className="summary-card">
-          {/* <div className="detail-row">
-            <p className="detail-label">{t("booking.referenceLabel")}</p>
-            <p className="detail-value">{submittedAppointment.id}</p>
-          </div> */}
           <div className="detail-row">
             <p className="detail-label">{t("booking.doctorLabelSuccess")}</p>
             <p className="detail-value">{submittedAppointment.doctorName}</p>
@@ -364,7 +411,6 @@ const BookAppointment = () => {
       </Alert>
 
       <form onSubmit={handleSubmit} noValidate>
-        {/* Step 1 — Department */}
         <div className="booking-section">
           <h2 className="booking-section__title">{t("booking.step1Title")}</h2>
           <Select
@@ -378,7 +424,6 @@ const BookAppointment = () => {
           />
         </div>
 
-        {/* Step 2 — Doctor */}
         {selectedDepartment && (
           <div className="booking-section">
             <h2 className="booking-section__title">
@@ -400,7 +445,6 @@ const BookAppointment = () => {
           </div>
         )}
 
-        {/* Step 3 — Date */}
         {canShowDateStep && (
           <div className="booking-section">
             <h2 className="booking-section__title">
@@ -444,7 +488,6 @@ const BookAppointment = () => {
           </div>
         )}
 
-        {/* Step 4 — Patient details */}
         {canShowDetailsStep && (
           <div className="booking-section">
             <h2 className="booking-section__title">
@@ -538,7 +581,6 @@ const BookAppointment = () => {
           </div>
         )}
 
-        {/* Step 5 — Payment */}
         {canShowDetailsStep && (
           <div className="booking-section">
             <h2 className="booking-section__title">
@@ -565,11 +607,107 @@ const BookAppointment = () => {
               size="lg"
               disabled={submitting}
             >
-              {submitting ? t("booking.submitting") : t("booking.submit")}
+              {submitting
+                ? t("booking.submitting")
+                : paymentMethod === "mock_esewa"
+                  ? t("booking.proceedToPayment")
+                  : t("booking.submit")}
             </Button>
           </div>
         )}
       </form>
+
+      {/* ---------- Simulated eSewa payment modal ---------- */}
+      <Modal
+        isOpen={showEsewaModal}
+        onClose={handleEsewaCancel}
+        title={
+          esewaStep === "success"
+            ? t("booking.esewaSuccessTitle")
+            : t("booking.esewaTitle")
+        }
+      >
+        <div className="esewa-demo-banner">{t("booking.esewaDemoNotice")}</div>
+
+        {esewaStep === "form" && (
+          <form onSubmit={handleEsewaPay} noValidate>
+            <div className="esewa-header">
+              <span className="esewa-logo">eSewa</span>
+              <span className="esewa-tagline">{t("booking.esewaTagline")}</span>
+            </div>
+
+            <div className="esewa-amount-box">
+              <p className="esewa-amount-label">
+                {t("booking.esewaAmountLabel")}
+              </p>
+              <p className="esewa-amount-value">
+                Rs. {selectedDoctorObj?.consultationFee ?? "-"}
+              </p>
+              <p className="esewa-amount-note">
+                Dr. {selectedDoctorObj?.firstName} {selectedDoctorObj?.lastName}
+                {selectedDepartmentObj?.name
+                  ? ` · ${selectedDepartmentObj.name}`
+                  : ""}
+              </p>
+            </div>
+
+            <Input
+              id="esewaId"
+              label={t("booking.esewaIdLabel")}
+              placeholder={t("booking.esewaIdPlaceholder")}
+              value={esewaId}
+              onChange={(e) => setEsewaId(e.target.value)}
+              error={esewaErrors.esewaId}
+            />
+            <Input
+              id="esewaPin"
+              type="password"
+              label={t("booking.esewaPinLabel")}
+              value={esewaPin}
+              onChange={(e) => setEsewaPin(e.target.value)}
+              error={esewaErrors.esewaPin}
+            />
+
+            <div className="modal-actions">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleEsewaCancel}
+              >
+                {t("common.cancel")}
+              </Button>
+              <Button type="submit" variant="secondary">
+                {t("booking.esewaPayButton")}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {esewaStep === "processing" && (
+          <Loader label={t("booking.esewaProcessing")} />
+        )}
+
+        {esewaStep === "success" && (
+          <div className="esewa-success">
+            <p className="esewa-success-icon">✓</p>
+            <p>{t("booking.esewaSuccessMessage")}</p>
+            <p className="esewa-amount-value">
+              Rs. {selectedDoctorObj?.consultationFee ?? "-"}
+            </p>
+            <div className="modal-actions">
+              <Button
+                variant="primary"
+                onClick={handleEsewaContinue}
+                disabled={submitting}
+              >
+                {submitting
+                  ? t("booking.submitting")
+                  : t("booking.esewaContinueButton")}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

@@ -14,7 +14,6 @@ const ACTIONABLE_STATUSES = ["pending", "confirmed"];
 const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
   const { t } = useLanguage();
   const {
-    _id,
     doctor,
     department,
     appointmentDate,
@@ -52,8 +51,6 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
           </p>
         </div>
 
-        {/* Token rule: only shown when confirmed AND the backend actually
-            provided a number — never displayed for pending appointments. */}
         {status === "confirmed" && tokenNumber != null && (
           <div className="detail-row">
             <p className="detail-label">{t("dashboard.tokenLabel")}</p>
@@ -87,11 +84,6 @@ const AppointmentCard = ({ appointment, onCancel, onReschedule }) => {
             <p className="detail-value">{symptoms}</p>
           </div>
         )}
-
-        <div className="detail-row">
-          <p className="detail-label">{t("dashboard.referenceLabel")}</p>
-          <p className="detail-value appointment-card__reference">{_id}</p>
-        </div>
       </div>
 
       {canAct && (onCancel || onReschedule) && (

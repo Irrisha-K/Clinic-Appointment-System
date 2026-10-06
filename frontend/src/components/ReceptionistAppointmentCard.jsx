@@ -19,7 +19,6 @@ const ReceptionistAppointmentCard = ({
 }) => {
   const { t } = useLanguage();
   const {
-    _id,
     patientRef,
     guestInfo,
     doctor,
@@ -112,11 +111,6 @@ const ReceptionistAppointmentCard = ({
             <p className="detail-value">{symptoms}</p>
           </div>
         )}
-
-        <div className="detail-row">
-          <p className="detail-label">{t("dashboard.referenceLabel")}</p>
-          <p className="detail-value appointment-card__reference">{_id}</p>
-        </div>
       </div>
 
       <div className="appointment-card__actions">
